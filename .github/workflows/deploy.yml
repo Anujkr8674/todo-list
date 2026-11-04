@@ -1,0 +1,71 @@
+name: Build, Test & Deploy to Hostinger
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Automated Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP 8.3
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, pdo_mysql, bcmath
+        coverage: none
+
+    - name: Copy .env for Testing
+      run: cp .env.example .env
+
+    - name: Install Composer Dependencies
+      run: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader
+
+    - name: Generate App Key
+      run: php artisan key:generate
+
+    - name: Execute Feature & Unit Tests
+      run: php artisan test
+
+  deploy:
+    name: Deploy via FTP to Hostinger
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP 8.3
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath
+        coverage: none
+
+    - name: Install Production Dependencies
+      run: composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
+
+    - name: Sync Files to Hostinger via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/.github/**
+          node_modules/**
+          tests/**
+          phpunit.xml
+          .env*
+          database/*.sqlite
+

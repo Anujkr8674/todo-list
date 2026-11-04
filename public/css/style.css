@@ -1,0 +1,275 @@
+/**
+ * Todo List - Custom Styling
+ * SaaS-inspired Modern Productivity Dashboard & App Drawer
+ */
+
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #4338CA;
+    --secondary-color: #64748B;
+    --text-dark: #0F172A;
+    --text-muted: #94A3B8;
+    --bg-light: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --success-color: #16A34A;
+    --warning-color: #F59E0B;
+    --danger-color: #EF4444;
+    --info-blue: #2563EB;
+    --sidebar-width: 260px;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+}
+
+/* ========================================================
+   Sidebar & App Drawer Layout (Responsive)
+   ======================================================== */
+
+/* Desktop layout (>= 992px) */
+@media (min-width: 992px) {
+    .app-sidebar {
+        position: fixed !important;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: var(--sidebar-width) !important;
+        height: 100vh;
+        z-index: 1040;
+        display: flex !important;
+        flex-direction: column;
+        overflow-y: auto;
+        transform: none !important;
+        visibility: visible !important;
+        background-color: #FFFFFF !important;
+    }
+
+    .main-wrapper {
+        margin-left: var(--sidebar-width);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--bg-light);
+    }
+}
+
+/* Mobile & Tablet layout (< 992px) */
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        width: 280px !important;
+    }
+
+    .main-wrapper {
+        margin-left: 0;
+        min-height: calc(100vh - 58px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-top-bar {
+        height: 58px;
+        z-index: 1030;
+    }
+}
+
+/* Sidebar navigation links */
+.sidebar-link {
+    color: var(--secondary-color);
+    font-weight: 500;
+    border-radius: 0.65rem;
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    color: var(--primary-color);
+    background-color: rgba(79, 70, 229, 0.08);
+}
+
+.sidebar-link.active {
+    color: #FFFFFF !important;
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.sidebar-header .brand-icon-box {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
+
+/* User Avatar Circular Badge (First letter of name) */
+.user-avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    font-size: 0.875rem;
+}
+
+/* ========================================================
+   Auth Card (Generous, non-compressed spacing)
+   ======================================================== */
+.auth-card-wrapper {
+    max-width: 520px;
+    width: 100%;
+}
+
+/* ========================================================
+   Buttons & Controls
+   ======================================================== */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
+}
+
+/* ========================================================
+   Card Enhancements
+   ======================================================== */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+}
+
+/* Priority Badges */
+.badge-priority-low {
+    background-color: #DCFCE7 !important;
+    color: var(--success-color) !important;
+    border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+.badge-priority-medium {
+    background-color: #FEF3C7 !important;
+    color: #D97706 !important;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-priority-high {
+    background-color: #FEE2E2 !important;
+    color: var(--danger-color) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Status Badges & Quick-Select Dropdowns */
+.status-select {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.25rem 1.8rem 0.25rem 0.75rem;
+    border-radius: 50rem;
+    cursor: pointer;
+    width: auto;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.status-badge-pending {
+    background-color: #F1F5F9 !important;
+    color: var(--secondary-color) !important;
+    border: 1px solid #CBD5E1 !important;
+}
+
+.status-badge-in_progress {
+    background-color: #DBEAFE !important;
+    color: var(--info-blue) !important;
+    border: 1px solid #93C5FD !important;
+}
+
+.status-badge-completed {
+    background-color: #DCFCE7 !important;
+    color: var(--success-color) !important;
+    border: 1px solid #86EFAC !important;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    border-color: #E2E8F0;
+    font-size: 0.9375rem;
+    border-radius: 0.625rem;
+    padding: 0.65rem 0.85rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15);
+}
+
+.input-group-text {
+    border-color: #E2E8F0;
+    border-radius: 0.625rem 0 0 0.625rem;
+}
+
+.task-card-mobile {
+    border-color: #E2E8F0 !important;
+    transition: border-color 0.2s ease;
+}
+
+.task-card-mobile:hover {
+    border-color: var(--primary-color) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .stat-icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .stat-icon-wrapper i {
+        font-size: 1.15rem !important;
+    }
+}
