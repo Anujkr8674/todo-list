@@ -14,7 +14,7 @@
             <div class="input-group">
                 <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
                 <input type="text" class="form-control border-start-0 @error('name') is-invalid @enderror"
-                       id="name" name="name" value="{{ old('name') }}" placeholder="Enter Your Name" required autofocus>
+                       id="name" name="name" value="{{ old('name') }}" placeholder="Enter your name" required autofocus>
                 @error('name')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
