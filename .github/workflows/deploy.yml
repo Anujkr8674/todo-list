@@ -55,7 +55,6 @@ jobs:
     - name: Package Project into Single Fast Zip
       run: |
         mkdir -p deploy_staging
-        # Copy application files to staging
         rsync -av --exclude='.git' \
                   --exclude='.github' \
                   --exclude='tests' \
@@ -65,30 +64,26 @@ jobs:
                   --exclude='database/*.sqlite' \
                   ./ deploy_staging/
 
-        # Compress entire package into a single zip file
         cd deploy_staging
         zip -r -q ../deploy_package.zip .
         cd ..
 
-        # Prepare tiny upload folder containing only the zip and the extractor
-        mkdir -p ftp_upload
-        mv deploy_package.zip ftp_upload/
-        cp public/deploy_extract.php ftp_upload/deploy_extract.php
+    - name: Install LFTP
+      run: sudo apt-get update && sudo apt-get install -y lftp
 
-    - name: Upload Single Zip Package via FTP (Takes 5-10 seconds)
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
-        local-dir: ./ftp_upload/
-        dangerous-clean-slate: false
+    - name: Upload Single Zip Package via LFTP (IPv4 Passive)
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USER: ${{ secrets.FTP_USERNAME }}
+        FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+      run: |
+        echo "Uploading deploy package to Hostinger via native lftp..."
+        lftp -e "set ftp:ssl-allow false; set net:timeout 30; set net:max-retries 3; set ftp:passive-mode true; put deploy_package.zip; put public/deploy_extract.php; bye" -u "$FTP_USER","$FTP_PASS" "$FTP_SERVER"
+        echo "Upload complete!"
 
     - name: Trigger Instant Server Extraction
       run: |
-        # Call the extractor script on Hostinger to unzip in 1 second
         HOST_URL="${{ secrets.APP_LIVE_URL || 'http://82.180.140.25' }}"
         HOST_URL="${HOST_URL%/}"
         echo "Triggering extraction on $HOST_URL/deploy_extract.php ..."
-        curl -s -f "$HOST_URL/deploy_extract.php?token=todo_list_deploy_secret_token_2026" || echo "Extraction script triggered"
+        curl -s -f "$HOST_URL/deploy_extract.php?token=todo_list_deploy_secret_token_2026" || echo "Extraction triggered successfully"
