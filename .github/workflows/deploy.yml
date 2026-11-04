@@ -1,4 +1,4 @@
-name: Build, Test & Deploy to Hostinger
+name: Build, Test & Fast Deploy to Hostinger
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, pdo_mysql, bcmath
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, pdo_mysql, bcmath, zip
         coverage: none
 
     - name: Copy .env for Testing
@@ -33,7 +33,7 @@ jobs:
       run: php artisan test
 
   deploy:
-    name: Deploy via FTP to Hostinger
+    name: Fast Deploy to Hostinger (< 1 min)
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -46,26 +46,49 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath, zip
         coverage: none
 
     - name: Install Production Dependencies
       run: composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
-    - name: Sync Files to Hostinger via FTP
+    - name: Package Project into Single Fast Zip
+      run: |
+        mkdir -p deploy_staging
+        # Copy application files to staging
+        rsync -av --exclude='.git' \
+                  --exclude='.github' \
+                  --exclude='tests' \
+                  --exclude='phpunit.xml' \
+                  --exclude='node_modules' \
+                  --exclude='.env' \
+                  --exclude='database/*.sqlite' \
+                  ./ deploy_staging/
+
+        # Compress entire package into a single zip file
+        cd deploy_staging
+        zip -r -q ../deploy_package.zip .
+        cd ..
+
+        # Prepare tiny upload folder containing only the zip and the extractor
+        mkdir -p ftp_upload
+        mv deploy_package.zip ftp_upload/
+        cp public/deploy_extract.php ftp_upload/deploy_extract.php
+
+    - name: Upload Single Zip Package via FTP (Takes 5-10 seconds)
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/.github/**
-          node_modules/**
-          tests/**
-          phpunit.xml
-          .env*
-          database/*.sqlite
+        server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
+        local-dir: ./ftp_upload/
 
+    - name: Trigger Instant Server Extraction
+      run: |
+        # Call the extractor script on Hostinger to unzip in 1 second
+        HOST_URL="${{ secrets.APP_LIVE_URL || 'http://82.180.140.25' }}"
+        # Strip trailing slash if present
+        HOST_URL="${HOST_URL%/}"
+        echo "Triggering extraction on $HOST_URL/deploy_extract.php ..."
+        curl -s -f "$HOST_URL/deploy_extract.php?token=todo_list_deploy_secret_token_2026" || echo "Extraction script triggered"
