@@ -81,14 +81,14 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
+        server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
         local-dir: ./ftp_upload/
+        dangerous-clean-slate: false
 
     - name: Trigger Instant Server Extraction
       run: |
         # Call the extractor script on Hostinger to unzip in 1 second
         HOST_URL="${{ secrets.APP_LIVE_URL || 'http://82.180.140.25' }}"
-        # Strip trailing slash if present
         HOST_URL="${HOST_URL%/}"
         echo "Triggering extraction on $HOST_URL/deploy_extract.php ..."
         curl -s -f "$HOST_URL/deploy_extract.php?token=todo_list_deploy_secret_token_2026" || echo "Extraction script triggered"
